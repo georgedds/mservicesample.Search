@@ -143,10 +143,12 @@ namespace mservicesample.Search.Api
             });
             
 
-            app.UseCors(x => x
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
+            //app.UseCors(x => x
+            //    .AllowAnyOrigin()
+            //    .AllowAnyMethod()
+            //    .AllowAnyHeader());
+            app.UseCors();
+
 
             //add error handling middleware always before mvc
             app.UseMiddleware(typeof(ExceptionHandlingMiddleware));
