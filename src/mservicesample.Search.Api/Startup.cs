@@ -38,10 +38,11 @@ namespace mservicesample.Search.Api
             var secretkey = Encoding.ASCII.GetBytes(appSettings.Secret);
             var signingKey = new SymmetricSecurityKey(secretkey);
 
+            services.AddCors();
             //Configure Consul
             services.AddConsul();
             
-            services.AddCors();
+            
 
             // jwt wire up
             // Get options from app settings
@@ -94,13 +95,13 @@ namespace mservicesample.Search.Api
             });
 
           
-            services.AddMvc(x => x.EnableEndpointRouting = false); //.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc(); //.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddAutoMapper(typeof(Startup));
 
             services.AddMediatR(typeof(Startup));
 
             //add healthcheck
-            services.RegisterHealthCheck(Configuration.GetConnectionString("Default"), jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)]);
+            //services.RegisterHealthCheck(Configuration.GetConnectionString("Default"), jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)]);
 
 
             //Add swagger
@@ -123,36 +124,40 @@ namespace mservicesample.Search.Api
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseAuthorization();
-            app.UseAuthentication();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
-            app.UseSwagger();
-
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Search API V1");
             });
-            
 
-            //app.UseCors(x => x
-            //    .AllowAnyOrigin()
-            //    .AllowAnyMethod()
-            //    .AllowAnyHeader());
-            app.UseCors();
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
 
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
+
+            app.UseAuthorization();
+            app.UseAuthentication();
 
             //add error handling middleware always before mvc
             app.UseMiddleware(typeof(ExceptionHandlingMiddleware));
-            app.UseMvc();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+
+            //add healthcheck options
+            //app.UseHealthChecks("/alive", new HealthCheckOptions
+            //{
+            //    Predicate = _ => true,
+            //    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+            //});
+            //app.UseHealthChecksUI(); //http://localhost:5000/healthchecks-ui#/healthchecks
 
             var consulServiceId = app.UseConsul();
             //applicationLifetime.ApplicationStopped.Register(() =>
@@ -160,13 +165,7 @@ namespace mservicesample.Search.Api
             //    client.Agent.ServiceDeregister(consulServiceId);
             //});
 
-            //add healthcheck options
-            app.UseHealthChecks("/alive", new HealthCheckOptions
-            {
-                Predicate = _ => true,
-                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-            });
-            app.UseHealthChecksUI(); //http://localhost:5000/healthchecks-ui#/healthchecks
+            
         }
     }
 }
