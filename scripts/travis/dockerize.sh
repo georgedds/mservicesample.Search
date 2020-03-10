@@ -9,9 +9,7 @@ case "$GIT_BRANCH" in
     ;;  
 esac
 
-REPOSITORY= mservicesample/mservicesample.search.api
-
-echo $REPOSITORY:$TAG
-echo $REPOSITORY:$BUILD_NO
+echo $DOCKER_REPOSITORY:$TAG
+echo $DOCKER_REPOSITORY:$BUILD_NO
 echo $GIT_BRANCH
 
