@@ -12,6 +12,8 @@ before_script:
   - chmod -R a+x scripts/travis
 script:
   - ./scripts/travis/build.sh
+after_success:
+  - ./scripts/travis/dockerize.sh
 notifications:
   email:
     on_success: never
